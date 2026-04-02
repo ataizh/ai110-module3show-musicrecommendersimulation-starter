@@ -8,15 +8,23 @@
 
 ---
 
-## 2. Intended Use
+## 2. Goal / Task
 
-VibeFinder suggests the top 5 songs from a small 20-song catalog based on a user's preferred genre, mood, energy level, and acoustic preference. It is designed for **classroom exploration only** — to demonstrate how content-based filtering works and where its limitations show up. It is not intended for real users or production music apps.
+VibeFinder takes a user's taste profile (favorite genre, mood, target energy, acoustic preference) and returns the top 5 most relevant songs from a catalog, ranked by a weighted score. It tries to answer: *"Given what this user told me they like, which songs in my catalog are the closest match?"*
 
-**Not intended for:** replacing real music platforms, making decisions that affect users' listening habits at scale, or any context where diversity and fairness of recommendations matter beyond a demonstration.
+It does **not** try to predict what a user will like in the future, learn from behavior, or discover hidden patterns. It is a lookup system with math, not a learning system.
 
 ---
 
-## 3. How the Model Works
+## 3. Intended Use and Non-Intended Use
+
+**Designed for:** classroom exploration to demonstrate how content-based filtering works, how features become scores, and where bias shows up in simple recommendation logic.
+
+**Not intended for:** replacing real music platforms, making decisions that affect users' listening habits at scale, commercial deployment, or any context where diversity and fairness of recommendations matter beyond a demonstration.
+
+---
+
+## 4. How the Model Works (Algorithm Summary)
 
 Every song in the catalog has measurable attributes: genre (e.g. "pop", "lofi"), mood (e.g. "happy", "intense"), energy (a number from 0 to 1 representing how "loud and active" the song feels), and acousticness (how "unplugged" it sounds).
 
@@ -33,7 +41,7 @@ Songs are then sorted highest-to-lowest by score and the top 5 are returned with
 
 ---
 
-## 4. Data
+## 5. Data Used
 
 - **Catalog size:** 20 songs (10 starter + 10 added)
 - **Genres represented:** pop, lofi, rock, electronic, folk, jazz, ambient, synthwave, indie pop, alternative
@@ -43,7 +51,7 @@ Songs are then sorted highest-to-lowest by score and the top 5 are returned with
 
 ---
 
-## 5. Strengths
+## 6. Strengths
 
 - **Transparent:** Every recommendation includes an exact breakdown of why it was chosen. Users can see exactly which attributes drove the score.
 - **Predictable:** The scoring is deterministic — the same profile always produces the same ranking, making it easy to test and debug.
@@ -52,7 +60,7 @@ Songs are then sorted highest-to-lowest by score and the top 5 are returned with
 
 ---
 
-## 6. Limitations and Bias
+## 7. Observed Behavior / Biases
 
 1. **Genre dominance / filter bubble:** Genre is worth 40% of the maximum score. A mediocre song in the right genre will consistently outscore a great song in a slightly different genre. A lofi fan will almost never see a jazz song even if both are equally mellow — this is a classic filter bubble.
 
@@ -66,7 +74,7 @@ Songs are then sorted highest-to-lowest by score and the top 5 are returned with
 
 ---
 
-## 7. Evaluation
+## 8. Evaluation Process
 
 **Profiles tested:**
 
@@ -84,7 +92,7 @@ When genre weight was halved, the "Chill Lofi" profile's #3 and #4 picks changed
 
 ---
 
-## 8. Future Work
+## 9. Ideas for Improvement
 
 1. **Add a diversity rule:** Prevent the same artist or sub-genre from appearing more than once in the top 5. This would make the "rock + intense" profile surface results beyond just Voltline tracks.
 2. **Use more features:** Add valence (emotional positivity) and tempo_bpm range matching. A user who likes mid-tempo (90–110 BPM) indie pop should score differently from one who likes fast-tempo pop.
@@ -92,12 +100,12 @@ When genre weight was halved, the "Chill Lofi" profile's #3 and #4 picks changed
 
 ---
 
-## 9. Personal Reflection
+## 10. Personal Reflection
 
-Building VibeFinder made it concrete just how much "simple math" can mimic the feeling of intelligence. When the pop fan's top result was exactly the right song, it felt like the system understood them — but it was just three multiplications and a comparison. That gap between "feels smart" and "is actually smart" is easy to miss as a user.
+**Biggest learning moment:** The weight-shift experiment. I expected halving the genre weight to produce more diverse results — but the top 5 songs were identical. The scores got closer together, but the ranking didn't change. That told me something more important than what I was testing: data gaps limit diversity more than algorithm design does. No weight configuration can recommend diverse rock songs when the catalog only has two rock songs. I had been thinking of bias as a scoring problem, but it's really a data problem first.
 
-The most surprising moment was the conflicted profile: high energy + melancholic mood. No song in the catalog had that combination, but the system confidently returned a result anyway with a score of 3.83 — it never says "I don't know." Real AI systems have this same problem at scale: they always produce an answer, which can be misleading when the answer is actually wrong.
+**How AI tools helped — and when I had to verify them:** AI was fast for boilerplate (CSV loading, dataclass definitions, tabulate formatting). But when I asked for help with the energy proximity formula, the first version it suggested used `song.energy > user.energy` as a threshold instead of `abs(user.energy - song.energy)` as a proximity measure — that would reward high-energy songs for high-energy users, not *similar-energy* songs. That's a fundamentally wrong approach that passes a quick glance but produces bad results. I caught it because I ran the system and the same song ranked first for every profile. The lesson: always test AI-generated math by asking "does the output match my intuition?"
 
-Using AI tools during this project sped up boilerplate significantly (CSV loading, dataclass structure), but I had to double-check the scoring logic because an early suggestion returned the same song for every profile — the energy proximity formula was accidentally always returning the maximum. That taught me that AI suggestions for math-heavy logic need careful manual verification, not just a quick glance.
+**What surprised me about simple algorithms feeling like real recommendations:** When the pop fan got Sunrise City at #1 and Ocean Drive at #2, it genuinely felt like the system *knew* them. It didn't. It did three multiplications and two string comparisons. What makes it feel intelligent is that the features (genre, mood, energy) were chosen to match how humans actually describe music. The math isn't smart — the feature selection is. Real AI systems are the same: the model architecture matters less than whether the input data captures what humans actually care about.
 
-If I extended this project, I would add a "confidence" output: something like "3 of 5 attributes matched — moderate confidence," so the user knows when the recommendation is a strong match vs a best-available fallback.
+**What I'd try next:** Add a match-quality signal — something like "strong match (4 of 4 features matched)" vs "best available (1 of 4 features matched)" — so the user knows whether to trust the recommendation. The system currently returns 5 results with equal confidence whether it found perfect matches or near-total misses. That gap between a 4.93 and a 1.91 score is informative, but only if the user knows what those numbers mean.
