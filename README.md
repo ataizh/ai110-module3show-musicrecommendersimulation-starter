@@ -99,6 +99,20 @@ acoustic_score = acousticness * 0.5 if user.likes_acoustic else (1-acousticness)
 
 Genre carries the most weight (40% of max) because genre is the single strongest predictor of whether a listener will enjoy a song. Energy is second because it captures "vibe intensity" — the difference between a workout playlist and a study session.
 
+### Why "Sunrise City" Ranks #1 for the Pop/Happy Profile — Step by Step
+
+Profile: `genre=pop, mood=happy, energy=0.85, likes_acoustic=False`
+
+| Check | Calculation | Points |
+|---|---|---|
+| Genre: song=`pop`, user=`pop` → match | flat bonus | **+2.0** |
+| Mood: song=`happy`, user=`happy` → match | flat bonus | **+1.0** |
+| Energy: `(1 - \|0.85 - 0.82\|) × 1.5` = `(1 - 0.03) × 1.5` = `0.97 × 1.5` | proximity | **+1.455** |
+| Acoustic: `(1 - 0.18) × 0.5` = `0.82 × 0.5` (user dislikes acoustic, song has low acousticness=0.18) | proximity | **+0.41** |
+| **Total** | | **4.865 ≈ 4.87** |
+
+Ocean Drive (#2, also pop/happy) scores 4.64 because its energy (0.71) is further from the target (0.85) than Sunrise City's (0.82), losing about 0.21 points in the energy term. Everything else is identical. This is the proximity formula working exactly as designed — small differences in a continuous feature produce small, proportional score differences.
+
 ### `.sort()` vs `sorted()` — Which One We Use and Why
 
 Both sort a list, but they behave differently:
@@ -286,14 +300,25 @@ Loaded songs: 20
 
 ## Experiments You Tried
 
-**Experiment 1 — Genre weight halved (2.0 → 1.0):**
-When genre weight was reduced, the "Chill Lofi" profile's #5 pick changed from a lofi song to Spacewalk Thoughts (ambient/chill) — a cross-genre suggestion that actually makes sense. Lower genre weight means the system can "escape" a genre when the energy and mood are a better match elsewhere. This made results feel more diverse but less predictable.
+**Experiment 1 — Weight shift: balanced vs mood_first (rock fan)**
 
-**Experiment 2 — Conflicted profile (high energy + melancholic mood):**
-Designed to stress-test the system with preferences that conflict (high energy songs are rarely melancholic). Result: the top picks matched genre but never matched mood. The system confidently returned results with no mood match at all — it never signals "I couldn't find what you wanted." This revealed the system's inability to express uncertainty.
+Hypothesis: reducing genre weight increases cross-genre variety in results.
+
+| | Balanced (genre=2.0, mood=1.0) | Mood-First (genre=0.5, mood=3.0) |
+|---|---|---|
+| #1 | Storm Runner [rock/intense] 4.93 | Storm Runner [rock/intense] 4.94 |
+| #2 | Iron Curtain [rock/intense] 4.93 | Iron Curtain [rock/intense] 4.94 |
+| #3 | Gym Hero [pop/intense] 2.93 | Gym Hero [pop/intense] 4.44 |
+| #4 | Power Circuit [electronic/intense] 2.89 | Power Circuit [electronic/intense] 4.42 |
+| #5 | Gravity Drop [alt/intense] 2.80 | Gravity Drop [alt/intense] 4.35 |
+
+**Finding:** The top 5 songs are *identical* in both modes — the ranking didn't change. What changed dramatically was the *score gap*: in balanced mode, rank #3 drops from 4.93 to 2.93 (a 2-point cliff). In mood_first mode the scores are tightly clustered (4.44–4.94). This means: weight shifting didn't increase diversity here because the catalog only has 2 rock songs — once those are at the top, all remaining intense songs tie on the mood signal regardless of weights. The experiment revealed that catalog size limits diversity more than weight choices do.
+
+**Experiment 2 — Adversarial profile (high energy + melancholic mood):**
+No song in the catalog has both high energy (>0.8) and melancholic mood. The system never awarded a mood-match point. It confidently returned 5 results anyway, scoring on genre + energy proximity only. Score ceiling dropped from 5.0 to ~3.8 — but there's no warning to the user. The system's inability to express "no good match found" is a real-world failure mode.
 
 **Experiment 3 — Catalog scarcity for niche genres:**
-The rock fan only has 2 rock songs in the catalog. After those two, the system falls back entirely to mood matches from other genres. Scores dropped from 4.93 to 2.93 between rank #2 and #3. A real system would warn: "Your catalog doesn't have enough rock songs for strong recommendations."
+The rock fan gets 2 exact genre matches; after those, scores drop from 4.93 to 2.93 — a 2-point cliff caused purely by running out of rock songs. A jazz or folk fan faces this cliff at position #1 (only 1 song each). This confirmed the bias identified in Phase 2: catalog imbalance matters more than scoring weights.
 
 ---
 

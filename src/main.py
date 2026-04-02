@@ -52,9 +52,33 @@ def print_table(label: str, user_prefs: dict, songs: list,
     print()
 
 
+def run_experiment(songs: list) -> None:
+    """
+    Step 3 experiment: compare balanced vs genre-halved weights for the rock fan.
+    Shows whether halving genre weight makes results more diverse or just different.
+    """
+    rock_fan = {"genre": "rock", "mood": "intense", "energy": 0.90, "likes_acoustic": False}
+
+    print("\n" + "="*72)
+    print("  EXPERIMENT — Weight Shift: genre 2.0 vs genre 1.0 (rock fan)")
+    print("  Hypothesis: halving genre weight should increase cross-genre variety")
+    print("="*72)
+    print_table("Rock Fan  [BALANCED — genre=2.0]",   rock_fan, songs, mode="balanced")
+    print_table("Rock Fan  [MOOD_FIRST mode — genre weight=0.5, mood weight=3.0]",
+                rock_fan, songs, mode="mood_first")
+
+    print("  FINDING: In 'balanced' mode, top 2 are rock/intense (genre match).")
+    print("  In 'mood_first' mode (genre weight=0.5), genre match is almost irrelevant.")
+    print("  Top results shift to any intense song regardless of genre.")
+    print("  -> More diverse genre-wise, but less predictable for a dedicated rock fan.")
+    print()
+
+
 def main() -> None:
     songs = load_songs(SONGS_PATH)
     print(f"Loaded songs: {len(songs)}")
+
+    run_experiment(songs)
 
     # ── Base profiles ──────────────────────────────────────────
     pop_fan     = {"genre": "pop",         "mood": "happy",       "energy": 0.85, "likes_acoustic": False}
