@@ -1,21 +1,21 @@
-id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness,popularity,release_decade,mood_tags
-1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18,88,2020,"uplifting,energetic,feel-good"
-2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71,61,2020,"focused,calm,nostalgic"
-3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10,74,2010,"aggressive,powerful,driving"
-4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86,55,2020,"peaceful,nostalgic,calm"
-5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05,82,2020,"aggressive,euphoric,motivational"
-6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92,43,2010,"dreamy,ethereal,calm"
-7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89,50,2000,"nostalgic,warm,cozy"
-8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22,67,2020,"dark,nostalgic,cinematic"
-9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78,58,2020,"focused,calm,productive"
-10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35,71,2020,"uplifting,romantic,feel-good"
-11,Power Circuit,Voltline,electronic,intense,0.97,140,0.55,0.84,0.02,79,2010,"aggressive,euphoric,driving"
-12,Sunflower Fields,The Mellow Set,folk,happy,0.44,98,0.88,0.50,0.93,46,2010,"warm,nostalgic,peaceful"
-13,Broken Signal,Static Kids,alternative,moody,0.68,115,0.38,0.61,0.14,63,2020,"dark,introspective,melancholic"
-14,Ocean Drive,Coastal Waves,pop,happy,0.71,105,0.87,0.75,0.30,85,2020,"uplifting,feel-good,romantic"
-15,Iron Curtain,Voltline,rock,intense,0.88,148,0.42,0.64,0.08,70,2000,"aggressive,powerful,dark"
-16,Slow Burn,The Mellow Set,folk,relaxed,0.31,84,0.76,0.43,0.95,42,2010,"warm,cozy,nostalgic"
-17,Neon Jungle,Max Pulse,electronic,energetic,0.92,138,0.68,0.86,0.03,77,2020,"euphoric,driving,energetic"
-18,Blue Hour,Paper Lanterns,lofi,melancholic,0.30,75,0.45,0.52,0.88,53,2020,"melancholic,introspective,calm"
-19,Velvet Underground,Slow Stereo,jazz,moody,0.45,95,0.52,0.58,0.84,48,1990,"dark,nostalgic,introspective"
-20,Gravity Drop,Static Kids,alternative,intense,0.80,130,0.44,0.70,0.11,65,2020,"aggressive,dark,powerful"
+id,title,artist,genre,mood,energy,tempo_bpm,valence,danceability,acousticness,popularity,release_decade,mood_tags,liveness,instrumentalness
+1,Sunrise City,Neon Echo,pop,happy,0.82,118,0.84,0.79,0.18,88,2020,"uplifting,energetic,feel-good",0.12,0.02
+2,Midnight Coding,LoRoom,lofi,chill,0.42,78,0.56,0.62,0.71,61,2020,"focused,calm,nostalgic",0.08,0.85
+3,Storm Runner,Voltline,rock,intense,0.91,152,0.48,0.66,0.10,74,2010,"aggressive,powerful,driving",0.21,0.04
+4,Library Rain,Paper Lanterns,lofi,chill,0.35,72,0.60,0.58,0.86,55,2020,"peaceful,nostalgic,calm",0.05,0.91
+5,Gym Hero,Max Pulse,pop,intense,0.93,132,0.77,0.88,0.05,82,2020,"aggressive,euphoric,motivational",0.14,0.01
+6,Spacewalk Thoughts,Orbit Bloom,ambient,chill,0.28,60,0.65,0.41,0.92,43,2010,"dreamy,ethereal,calm",0.06,0.96
+7,Coffee Shop Stories,Slow Stereo,jazz,relaxed,0.37,90,0.71,0.54,0.89,50,2000,"nostalgic,warm,cozy",0.32,0.43
+8,Night Drive Loop,Neon Echo,synthwave,moody,0.75,110,0.49,0.73,0.22,67,2020,"dark,nostalgic,cinematic",0.09,0.15
+9,Focus Flow,LoRoom,lofi,focused,0.40,80,0.59,0.60,0.78,58,2020,"focused,calm,productive",0.07,0.88
+10,Rooftop Lights,Indigo Parade,indie pop,happy,0.76,124,0.81,0.82,0.35,71,2020,"uplifting,romantic,feel-good",0.18,0.03
+11,Power Circuit,Voltline,electronic,intense,0.97,140,0.55,0.84,0.02,79,2010,"aggressive,euphoric,driving",0.11,0.08
+12,Sunflower Fields,The Mellow Set,folk,happy,0.44,98,0.88,0.50,0.93,46,2010,"warm,nostalgic,peaceful",0.25,0.31
+13,Broken Signal,Static Kids,alternative,moody,0.68,115,0.38,0.61,0.14,63,2020,"dark,introspective,melancholic",0.15,0.06
+14,Ocean Drive,Coastal Waves,pop,happy,0.71,105,0.87,0.75,0.30,85,2020,"uplifting,feel-good,romantic",0.13,0.02
+15,Iron Curtain,Voltline,rock,intense,0.88,148,0.42,0.64,0.08,70,2000,"aggressive,powerful,dark",0.19,0.05
+16,Slow Burn,The Mellow Set,folk,relaxed,0.31,84,0.76,0.43,0.95,42,2010,"warm,cozy,nostalgic",0.22,0.38
+17,Neon Jungle,Max Pulse,electronic,energetic,0.92,138,0.68,0.86,0.03,77,2020,"euphoric,driving,energetic",0.16,0.07
+18,Blue Hour,Paper Lanterns,lofi,melancholic,0.30,75,0.45,0.52,0.88,53,2020,"melancholic,introspective,calm",0.06,0.89
+19,Velvet Underground,Slow Stereo,jazz,moody,0.45,95,0.52,0.58,0.84,48,1990,"dark,nostalgic,introspective",0.41,0.52
+20,Gravity Drop,Static Kids,alternative,intense,0.80,130,0.44,0.70,0.11,65,2020,"aggressive,dark,powerful",0.17,0.04

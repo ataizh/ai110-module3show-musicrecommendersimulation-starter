@@ -21,36 +21,23 @@ SCORING_MODES: Dict[str, Dict[str, float]] = {
         "mood": 1.0,    # 20 %
         "energy": 1.5,  # 30 %
         "acoustic": 0.5,# 10 %
-        "popularity": 0.0,
-        "decade": 0.0,
-        "mood_tags": 0.0,
+        "popularity": 0.0, "decade": 0.0, "mood_tags": 0.0,
+        "liveness": 0.0, "instrumentalness": 0.0,
     },
     "genre_first": {
-        "genre": 4.0,
-        "mood": 0.5,
-        "energy": 0.75,
-        "acoustic": 0.25,
-        "popularity": 0.0,
-        "decade": 0.0,
-        "mood_tags": 0.0,
+        "genre": 4.0, "mood": 0.5, "energy": 0.75, "acoustic": 0.25,
+        "popularity": 0.0, "decade": 0.0, "mood_tags": 0.0,
+        "liveness": 0.0, "instrumentalness": 0.0,
     },
     "mood_first": {
-        "genre": 0.5,
-        "mood": 3.0,
-        "energy": 1.0,
-        "acoustic": 0.5,
-        "popularity": 0.0,
-        "decade": 0.0,
-        "mood_tags": 0.0,
+        "genre": 0.5, "mood": 3.0, "energy": 1.0, "acoustic": 0.5,
+        "popularity": 0.0, "decade": 0.0, "mood_tags": 0.0,
+        "liveness": 0.0, "instrumentalness": 0.0,
     },
     "energy_focused": {
-        "genre": 0.5,
-        "mood": 0.5,
-        "energy": 3.5,
-        "acoustic": 0.5,
-        "popularity": 0.0,
-        "decade": 0.0,
-        "mood_tags": 0.0,
+        "genre": 0.5, "mood": 0.5, "energy": 3.5, "acoustic": 0.5,
+        "popularity": 0.0, "decade": 0.0, "mood_tags": 0.0,
+        "liveness": 0.0, "instrumentalness": 0.0,
     },
     "advanced": {
         # Challenge 1 mode — uses all new features
@@ -58,9 +45,11 @@ SCORING_MODES: Dict[str, Dict[str, float]] = {
         "mood": 0.75,
         "energy": 1.0,
         "acoustic": 0.25,
-        "popularity": 1.0,   # up to +1.0 for popular songs (if user wants popular=True)
-        "decade": 0.75,      # up to +0.75 for decade match
-        "mood_tags": 0.75,   # up to +0.75 per overlapping mood tag (capped at 0.75)
+        "popularity": 1.0,        # up to +1.0 for popular songs (if user wants popular=True)
+        "decade": 0.75,           # up to +0.75 for decade match
+        "mood_tags": 0.75,        # up to +0.75 for overlapping mood tags (capped at 0.75)
+        "liveness": 0.5,          # up to +0.5 for live preference match
+        "instrumentalness": 0.5,  # up to +0.5 for instrumental preference match
     },
 }
 
@@ -84,6 +73,8 @@ class Song:
     popularity: int = 50
     release_decade: int = 2020
     mood_tags: List[str] = field(default_factory=list)
+    liveness: float = 0.1          # 0=studio recording, 1=live performance
+    instrumentalness: float = 0.1  # 0=lots of vocals, 1=fully instrumental
 
 
 @dataclass
@@ -94,9 +85,11 @@ class UserProfile:
     target_energy: float
     likes_acoustic: bool
     # Advanced fields (Challenge 1)
-    preferred_decade: int = 0          # 0 = no preference
+    preferred_decade: int = 0              # 0 = no preference
     preferred_mood_tags: List[str] = field(default_factory=list)
-    prefer_popular: bool = False       # True = boost high-popularity songs
+    prefer_popular: bool = False           # True = boost high-popularity songs
+    prefers_live: bool = False             # True = reward live recordings
+    prefers_instrumental: bool = False     # True = reward instrumental tracks
 
 
 # ─────────────────────────────────────────────────────────────
@@ -135,6 +128,14 @@ class Recommender:
             overlap = len(set(song.mood_tags) & set(user.preferred_mood_tags))
             tag_pts = min(overlap / max(len(user.preferred_mood_tags), 1), 1.0) * w["mood_tags"]
             score += tag_pts
+
+        if w["liveness"] > 0:
+            live_pts = song.liveness if user.prefers_live else (1.0 - song.liveness)
+            score += live_pts * w["liveness"]
+
+        if w["instrumentalness"] > 0:
+            inst_pts = song.instrumentalness if user.prefers_instrumental else (1.0 - song.instrumentalness)
+            score += inst_pts * w["instrumentalness"]
 
         return round(score, 3)
 
@@ -176,6 +177,16 @@ class Recommender:
             if overlap:
                 tag_pts = round(min(len(overlap) / max(len(user.preferred_mood_tags), 1), 1.0) * w["mood_tags"], 2)
                 parts.append(f"mood tags {overlap} (+{tag_pts})")
+
+        if w["liveness"] > 0:
+            live_pts = round((song.liveness if user.prefers_live else (1.0 - song.liveness)) * w["liveness"], 2)
+            label = "live" if user.prefers_live else "studio"
+            parts.append(f"{label} preference (+{live_pts})")
+
+        if w["instrumentalness"] > 0:
+            inst_pts = round((song.instrumentalness if user.prefers_instrumental else (1.0 - song.instrumentalness)) * w["instrumentalness"], 2)
+            label = "instrumental" if user.prefers_instrumental else "vocal"
+            parts.append(f"{label} preference (+{inst_pts})")
 
         return "; ".join(parts)
 
@@ -234,9 +245,10 @@ def load_songs(csv_path: str) -> List[Dict]:
             row["acousticness"] = float(row["acousticness"])
             row["popularity"] = int(row.get("popularity", 50))
             row["release_decade"] = int(row.get("release_decade", 2020))
-            # mood_tags stored as a list for easy set operations
             raw_tags = row.get("mood_tags", "")
             row["mood_tags"] = [t.strip() for t in raw_tags.split(",") if t.strip()]
+            row["liveness"] = float(row.get("liveness", 0.1))
+            row["instrumentalness"] = float(row.get("instrumentalness", 0.1))
             songs.append(row)
     return songs
 
@@ -288,6 +300,20 @@ def score_song(user_prefs: Dict, song: Dict, mode: str = "balanced") -> Tuple[fl
             tag_pts = round(min(len(overlap) / max(len(user_tags), 1), 1.0) * w["mood_tags"], 2)
             score += tag_pts
             parts.append(f"mood tags {overlap} (+{tag_pts})")
+
+    if w["liveness"] > 0:
+        prefers_live = user_prefs.get("prefers_live", False)
+        live_pts = round((song["liveness"] if prefers_live else (1.0 - song["liveness"])) * w["liveness"], 2)
+        score += live_pts
+        label = "live" if prefers_live else "studio"
+        parts.append(f"{label} preference (+{live_pts})")
+
+    if w["instrumentalness"] > 0:
+        prefers_inst = user_prefs.get("prefers_instrumental", False)
+        inst_pts = round((song["instrumentalness"] if prefers_inst else (1.0 - song["instrumentalness"])) * w["instrumentalness"], 2)
+        score += inst_pts
+        label = "instrumental" if prefers_inst else "vocal"
+        parts.append(f"{label} preference (+{inst_pts})")
 
     return round(score, 3), "; ".join(parts)
 

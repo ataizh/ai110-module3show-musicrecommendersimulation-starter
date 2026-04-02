@@ -86,15 +86,30 @@ def main() -> None:
     rock_fan    = {"genre": "rock",        "mood": "intense",     "energy": 0.90, "likes_acoustic": False}
     conflicted  = {"genre": "alternative", "mood": "melancholic", "energy": 0.88, "likes_acoustic": False}
 
-    # ── Challenge 1: Advanced profile with new features ────────
+    # ── Challenge 1: Advanced profile (all 5 new features) ────
     advanced_fan = {
         "genre": "electronic",
         "mood": "energetic",
         "energy": 0.92,
         "likes_acoustic": False,
-        "prefer_popular": True,          # boosts high-popularity songs
-        "preferred_decade": 2020,        # rewards 2020s tracks
-        "preferred_mood_tags": ["euphoric", "driving", "energetic"],
+        "prefer_popular": True,                          # new: popularity score
+        "preferred_decade": 2020,                        # new: decade match bonus
+        "preferred_mood_tags": ["euphoric", "driving", "energetic"],  # new: tag overlap
+        "prefers_live": False,                           # new: studio sound preferred
+        "prefers_instrumental": False,                   # new: vocal music preferred
+    }
+
+    # Advanced profile that prefers jazz live instrumentals
+    jazz_intellectual = {
+        "genre": "jazz",
+        "mood": "moody",
+        "energy": 0.45,
+        "likes_acoustic": True,
+        "prefer_popular": False,
+        "preferred_decade": 1990,
+        "preferred_mood_tags": ["nostalgic", "introspective", "dark"],
+        "prefers_live": True,                            # rewards live recordings
+        "prefers_instrumental": True,                    # rewards instrumental tracks
     }
 
     # ===========================================================
@@ -122,6 +137,7 @@ def main() -> None:
     print("  CHALLENGE 1 — ADVANCED FEATURES (popularity + decade + mood_tags)")
     print("="*72)
     print_table("Electronic / Euphoric 2020s Fan", advanced_fan, songs, mode="advanced")
+    print_table("Jazz Live Instrumental Fan", jazz_intellectual, songs, mode="advanced")
 
     # ===========================================================
     # All 4 base profiles in balanced mode (for reference)
